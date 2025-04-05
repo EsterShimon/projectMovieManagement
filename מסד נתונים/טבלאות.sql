@@ -1,0 +1,71 @@
+CREATE TABLE Customers (
+    CustomerID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL,
+    Phone NVARCHAR(15) NOT NULL,
+    Email NVARCHAR(200) NULL,
+    Address NVARCHAR(300) NULL
+);
+
+CREATE TABLE Movies (
+    MovieID INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(200) NOT NULL,
+    MinimumPrice DECIMAL(10,2) NOT NULL,
+    DefaultPricePerViewer DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE Centers (
+    CenterID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL,
+    Location NVARCHAR(300) NOT NULL
+);
+
+CREATE TABLE Operators (
+    OperatorID INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(200) NOT NULL,
+    Phone NVARCHAR(15) NOT NULL,
+    Email NVARCHAR(200) NULL
+);
+
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    CustomerID INT NOT NULL,
+    OperatorID INT NULL,
+    MovieID INT NOT NULL,
+    OrderDate DATETIME DEFAULT GETDATE(),
+    ScheduledDate DATETIME NOT NULL,
+    NumberOfViewers INT NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
+    IsPaid BIT DEFAULT 0,
+    Notes NVARCHAR(500) NULL,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+    FOREIGN KEY (OperatorID) REFERENCES Operators(OperatorID),
+    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID)
+);
+
+CREATE TABLE USBKeys (
+    USBKeyID INT IDENTITY(1,1) PRIMARY KEY,
+    MovieID INT NOT NULL,
+    CenterID INT NOT NULL,
+    CurrentLocation NVARCHAR(200) NOT NULL DEFAULT 'Center',
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Available',
+    FOREIGN KEY (MovieID) REFERENCES Movies(MovieID),
+    FOREIGN KEY (CenterID) REFERENCES Centers(CenterID)
+);
+
+CREATE TABLE USBKeysHistory (
+    HistoryID INT IDENTITY(1,1) PRIMARY KEY,
+    USBKeyID INT NOT NULL,
+    PreviousLocation NVARCHAR(200) NOT NULL,
+    NewLocation NVARCHAR(200) NOT NULL,
+    ChangeDate DATETIME DEFAULT GETDATE(),
+    Notes NVARCHAR(500) NULL,
+    FOREIGN KEY (USBKeyID) REFERENCES USBKeys(USBKeyID)
+);
+
+CREATE TABLE Users (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    Username NVARCHAR(100) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(500) NOT NULL,
+    Role NVARCHAR(50) NOT NULL CHECK (Role IN ('Admin', 'Secretary')),
+    FullName NVARCHAR(200) NOT NULL
+);
